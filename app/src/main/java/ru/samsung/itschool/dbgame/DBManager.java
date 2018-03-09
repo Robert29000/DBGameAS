@@ -31,7 +31,15 @@ public class DBManager {
 		createTablesIfNeedBe(); 
 	}
 
-	void addResult(String username, int score) {
+	void addProResult(String username, int score) {
+		Cursor cursor=db.query("RESULTS",new String[]{"USERNAME"},"USERNAME=?",new String[]{username},null,null,null);
+		if(!cursor.moveToFirst()) {
+			db.execSQL("INSERT INTO RESULTS VALUES ('" + username + "', " + score
+					+ ");");
+		}else db.execSQL("UPDATE RESULTS SET SCORE=? WHERE USERNAME=?",new Object[]{score,username});
+	}
+
+	void addResult(String username,int score){
 		db.execSQL("INSERT INTO RESULTS VALUES ('" + username + "', " + score
 				+ ");");
 	}
@@ -39,11 +47,13 @@ public class DBManager {
 	void Clear(){
 		db.execSQL("DELETE  FROM RESULTS;");
 	}
+
 	double average(){
 		Cursor cursor=db.rawQuery("SELECT AVG(SCORE) FROM RESULTS;",null);
 		cursor.moveToFirst();
 		return cursor.getDouble(0);
 	}
+
 	double eventFrecents(){
 		Cursor cursor=db.rawQuery("SELECT COUNT(SCORE) FROM RESULTS WHERE SCORE % 2=0;",null);
 		cursor.moveToFirst();
@@ -76,6 +86,18 @@ public class DBManager {
 	private boolean dbExist() {
 		File dbFile = context.getDatabasePath(DB_NAME);
 		return dbFile.exists();
+	}
+	ArrayList<Result> getNumberOfgames(){
+		ArrayList<Result> data=new ArrayList<>();
+		Cursor cursor=db.rawQuery("SELECT COUNT(SCORE) AS C,USERNAME FROM RESULTS GROUP BY USERNAME;",null);
+		boolean hasmoredata=cursor.moveToFirst();
+		while(hasmoredata){
+			String name=cursor.getString(cursor.getColumnIndex("USERNAME"));
+			int c=cursor.getInt(cursor.getColumnIndex("C"));
+			data.add(new Result(name,c));
+			hasmoredata=cursor.moveToNext();
+		}
+		return data;
 	}
 
 }

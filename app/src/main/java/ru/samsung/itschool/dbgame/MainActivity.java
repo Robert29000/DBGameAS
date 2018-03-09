@@ -27,9 +27,6 @@ public class MainActivity extends Activity {
 		gameResult = (TextView) this.findViewById(R.id.GameResult);
 		playButton = (ImageButton) this.findViewById(R.id.playButton);
 		playerName = (EditText) this.findViewById(R.id.playerName);
-		for(int i=1;i<5;i++){
-			dbManager.addResult(playerName.getText().toString(),(int)(Math.random()*1000));
-		}
 	}
 
 	public void stat(View v){
